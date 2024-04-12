@@ -311,12 +311,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-
-
-
-
-
-
 async function getProfileData() {
     const token = sessionStorage.getItem('token');
 
@@ -469,13 +463,78 @@ async function getProjectData() {
 }
 // getProjectData();
 
+document.addEventListener('DOMContentLoaded', async () => {
+    if (location.pathname.endsWith("Profile.html")) {
+        const info = await getStudentProjectsInfo();
+        const {ID_STUDENT, PROJECTS} = info;
+        const listElement = document.getElementById("project-list");
+        const cardElement = listElement.querySelector(".card");
+
+        if(!PROJECTS?.length) {
+            return;
+        }
+
+        listElement.addEventListener('click', async (event) => {
+            const target = event.target;
+            const isChange = target.classList.contains("button-change");
+            const isDownload = target.classList.contains("button-download");
+            const isDelete = target.classList.contains("button-delete");
+
+            if (!(isChange || isDownload || isDelete)) {
+                return;
+            }
+
+            const body = target.parentElement;
+            const card = body.parentElement;
+            const projectId = body.dataset.projectId;
+
+            if (isChange) {
+                console.log(`do change`);
+
+                return;
+            }
+
+            if (isDownload) {
+                await downloadProject(projectId);
+
+                return;
+            }
+
+            if (isDelete) {
+                await deleteProject(projectId);
+                listElement.removeChild(card);
+
+                return;
+            }
+        });
+
+        for (const project of PROJECTS) {
+            const {PROJECT_ID, projects_name} = project;
+            const clone = cardElement.cloneNode(true);
+            const bodyElement = clone.querySelector(".card-body");
+            const titleElement = clone.querySelector(".card-title");
+
+            titleElement.innerHTML = projects_name;
+            bodyElement.dataset.projectId = PROJECT_ID;
+            bodyElement.dataset.studentId = ID_STUDENT;
+
+            listElement.append(clone);
+
+            clone.classList.remove("d-none");
+        }
+    }
+});
+
 
 // ПОЛУЧЕНИЕ ВСЕХ ПРОЕКТОВ СТУДЕНТА
-async function getStudentProjects() {
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFyc2VuYXZ0b3JAbWFpbC5ydSIsIklEX1NUVURFTlQiOjEsImlhdCI6MTcxMjIyNzI5MCwiZXhwIjoxNzEyMjMwODkwfQ.G591gDwL_Nw9yHJHufzlUzulWEYaQYNK6k9mnsXahLg'; // Замените на ваш токен доступа
-    // const idStudent = "1";
-    const url = '/projects'; // Укажите правильный URL для получения проектов студента
+async function getStudentProjectsInfo() {
+    const token = sessionStorage.getItem('token');
 
+    if (!token) {
+        return;
+    }
+
+    const url = '/projects'; // Укажите правильный URL для получения проектов студента
     const params = {
         method: 'GET',
         headers: {
@@ -485,13 +544,14 @@ async function getStudentProjects() {
 
     try {
         const response = await fetch(url, params);
-
         const studentProjects = await response.json();
-        console.log('Список проектов студента:', studentProjects);
-        // Обработка полученных данных, если необходимо
+
+        return studentProjects.info;
     } catch (error) {
         console.error('Error:', error.message);
     }
+
+    return [];
 }
 // getStudentProjects();
 
@@ -501,21 +561,17 @@ async function getStudentProjects() {
 // const projectId = 'YOUR_PROJECT_ID'; // Замените на идентификатор проекта, который вы хотите удалить
 // const url = `/students/me/projects/${projectId}`;
 
-async function deleteProject() {
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFyc2VuYXZ0b3JAbWFpbC5ydSIsIklEX1NUVURFTlQiOjEsImlhdCI6MTcxMjIyNzI5MCwiZXhwIjoxNzEyMjMwODkwfQ.G591gDwL_Nw9yHJHufzlUzulWEYaQYNK6k9mnsXahLg'; // Замените на ваш токен доступа
-    const projectId = '1';
+async function deleteProject(projectId) {
+    const token = sessionStorage.getItem('token');
     const url = `/projects/${projectId}`; // Укажите правильный URL для получения проектов студента
+
     try {
-        const response = await fetch(url, {
+        await fetch(url, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
-
-
-
-        console.log('Проект успешно удален');
     } catch (error) {
         console.error('Ошибка:', error.message);
     }
@@ -523,9 +579,8 @@ async function deleteProject() {
 // deleteProject();
 
 
-async function downloadProject() {
-    const projectId = '2';
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFyc2VuYXZ0b3JAbWFpbC5ydSIsIklEX1NUVURFTlQiOjEsImlhdCI6MTcxMjIyNzI5MCwiZXhwIjoxNzEyMjMwODkwfQ.G591gDwL_Nw9yHJHufzlUzulWEYaQYNK6k9mnsXahLg'; // Замените на ваш токен доступа
+async function downloadProject(projectId) {
+    const token = sessionStorage.getItem('token');
     const url = `/projects/${projectId}/download`;
 
     try {
@@ -535,8 +590,6 @@ async function downloadProject() {
                 'Authorization': `Bearer ${token}`
             }
         });
-
-
         // Получение данных о проекте для скачивания
         const projectData = await response.json();
         console.log('Данные о проекте для скачивания:', projectData);
