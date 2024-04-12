@@ -75,35 +75,28 @@ app.post('/login', async (req, res) => {
     // console.log(email)
     // console.log(password);
 
-
     try {
         const client = await pool.connect();
         const user = await client.query('SELECT * FROM students WHERE email = $1', [email]);
-
-        // console.log(user.rows);
-
 
         if (user.rows.length === 1) {
             const storedPassword = user.rows[0].password;
             const idStudent = user.rows[0].id_student;
 
-
             if (await bcrypt.compare(password, storedPassword)) {
-
                 const tokenResult = await client.query('SELECT token FROM token_student WHERE id_student = $1', [idStudent]);
-
+                client.release();
 
                 if (tokenResult.rows.length === 1) {
                     const token = tokenResult.rows[0].token;
                     res.status(200).json({ token, idStudent });
-                    client.release();
                     return;
                 }
             }
         }
 
-        res.status(404).json({ message: "Пользователь не найден или пароль неверен", error: 404 });
         client.release();
+        res.status(404).json({ message: "Пользователь не найден или пароль неверен", error: 404 });
     } catch (error) {
         console.error('Ошибка при авторизации пользователя:', error);
         res.status(500).json({ message: 'Ошибка при авторизации пользователя' });
@@ -386,9 +379,6 @@ app.put('/projects/:projectId', async (req, res) => {
         } else {
             res.status(400).json({ message: "не авторизован" });
         }
-
-
-
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Ошибка сервера. Что-то пошло не так.' });
