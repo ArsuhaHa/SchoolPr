@@ -281,7 +281,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.addEventListener('DOMContentLoaded', () => {
     // Получаем данные из sessionStorage
-    const profileData = JSON.parse(sessionStorage.getItem('profileData'));
+    const serialized = sessionStorage.getItem('profileData');
+
+    if (!serialized) {
+        return;
+    }
+    
+    try {
+        JSON.parse(serialized);
+    } catch (e) {
+        return;
+    }
+
+    const profileData = JSON.parse(serialized);
 
     if (profileData) {
         // Обновляем контент на странице
