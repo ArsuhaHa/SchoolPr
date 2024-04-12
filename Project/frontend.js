@@ -16,6 +16,11 @@ async function postData(url = '', data = {}) {
     try {
         const response = await fetch(url, requestOptions);
         const responseData = await response.json();
+
+        if (response.status >= 400) {
+            throw new Error(responseData?.message);
+        }
+
         return responseData;
     } catch (error) {
         console.error('Ошибка при выполнении запроса:', error);
@@ -98,43 +103,47 @@ async function registerUser() {
     const password = document.getElementById('passReg').value;
     const conPassword = document.getElementById('passConReg').value;
 
-    // localStorage.removeItem('token');
-    // localStorage.removeItem('id_student');
+    // sessionStorage.removeItem('token');
+    // sessionStorage.removeItem('id_student');
 
-    if (email && fullName && password && conPassword) {
-        if (email.includes('@')) {
+    if (!email || !fullName || !password || !conPassword) {
+        console.log("Не все данные заполнены");
+        printError(1);
+
+        return;
+    }
+
+    if (!email.includes('@')) {
+        console.log('Некоректная почта');
+        printError(2);
+
+        return;
+    }
+
             if (password !== conPassword) {
                 console.log("Пароли не совпадают");
                 printError(3);
-            } else {
+
+        return;
+    }
+
                 const data = { email, fullName, password };
 
                 try {
                     const response = await postData('/register', data);
+
                     console.log(response);
                     console.log('Регистрация успешна, токен:', response.token);
 
                     clearError();
 
-                    localStorage.setItem('token', response.token);
-                    localStorage.setItem('id_student', response.id_student);
+        sessionStorage.setItem('token', response.token);
+        sessionStorage.setItem('id_student', response.id_student);
 
                     window.location.href = "Start.html";
-
-
                 } catch (error) {
-                    console.error('Ошибка при регистрации:', error);
+        console.error('Ошибка при регистрации:', error.message);
                     printError(4);
-                }
-            }
-        }
-        else {
-            console.log('Некоректная почта');
-            printError(2);
-        }
-    } else {
-        console.log("Не все данные заполнены");
-        printError(1);
     }
 }
 
