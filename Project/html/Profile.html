@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/profile.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="container rounded mt-5 mb-5">
+        <div class="row">
+            <div class="col-md-3 border-right profileMenu">
+                <div class="row">
+
+                    <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+                        <img style="background-color: white;" class="rounded-circle mt-5" width="150px"
+                            src="../img/checking.svg">
+                        <span>ФИО</span>
+                    </div>
+                </div>
+
+                <div class="row text-center">
+                    <button id="btn-profile" class="btn btn-itd text-uppercase mb-3">Мой профиль</button>
+                    <button id="btn-project" class="btn btn-itd text-uppercase mb-3">Мои проекты</button>
+                    <a href="signIn.html" class="btn btn-itd text-uppercase mb-2">Выйти из аккаунта</a>
+                </div>
+            </div>
+
+            
+            <div id="profile" class="col-md-9 border-right">
+                <div class="p-3 py-5">
+                    <div class="d-flex justify-content-center align-items-center mb-3">
+                        <h4 class="mt-5">Профиль</h4>
+                    </div>
+                    <div class="d-flex justify-content-center text-center row name-of-title mt-2">
+                        ФИО:
+                    </div>
+                    <div id="studentNameProfile" class="d-flex justify-content-center row">
+                        
+                    </div>
+
+                    <div class="d-flex justify-content-center row name-of-title mt-4">
+                        Название школы:
+                    </div>
+                    <div id="schoolNameProfile" class="d-flex justify-content-center row">
+                        Не указано
+                    </div>
+
+                    <div class="d-flex justify-content-center row name-of-title mt-4">
+                        Класс
+                    </div>
+                    <div id="classNameProfile" class="d-flex justify-content-center row">
+                        Не указано
+                    </div>
+
+                    <div class="d-flex justify-content-center row name-of-title mt-4">
+                        Страна и город
+                    </div>
+                    <div id="countryCityProfile" class="d-flex justify-content-center row">
+                        Не указано
+                    </div>
+                    <div class="mt-5 text-center"><a href="ChangeProfile.html"
+                            class="btn btn-primary btn-itd profile-button" type="button">Изменить</a></div>
+                </div>
+                
+            </div>
+
+            
+            <div id="tmp" class="col-md-3">
+
+            </div>
+
+            <div id="project" style="display: none;" class="col-md-9">
+                <div class="p-3 py-5">
+                    <div class="d-flex justify-content-center align-items-center mb-3">
+                        <h4 class="mt-5">Проекты</h4>
+                    </div>
+                    <div class="container mb-5">
+                        <div class="row">
+                            <div class="col-12 d-flex justify-content-center align-items-center">
+                                <div class="card" style="width: 18rem;">
+                                    <div class="card-body">
+                                        <h5 class="card-title mb-5">Название проекта</h5>
+                                        
+                                        <a href="#" class="btn btn-itd btn-primary mt-5 d-flex justify-content-center">Изменить</a>
+                                        <a href="#" class="btn btn-itd btn-primary mt-5 d-flex justify-content-center">Скачать</a>
+                                        <a href="#" class="btn btn-itd btn-primary mt-5 d-flex justify-content-center">Удалить</a>
+                                    </div>
+                                </div>
+                            </div>                        
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12 mt-5 mb-5 text-center">
+                <a href="Start.html" class="btn btn-itd btn-lg text-uppercase">Назад</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let btn_profile = document.getElementById('btn-profile');
+        let btn_project = document.getElementById('btn-project');
+
+        let profile = document.getElementById('profile');
+        let tmp = document.getElementById('tmp');
+        let project = document.getElementById('project');
+
+        btn_profile.onclick = function() {
+            tmp.style.display = 'none';
+            project.style.display = 'none';
+
+            profile.style.display = 'block';
+        }
+
+        btn_project.onclick = function() {
+            tmp.style.display = 'none';
+            project.style.display = 'block';
+
+            profile.style.display = 'none';
+        }
+    </script>
+    <script src="../library/bootstrap.bundle.min.js"></script>
+    <script src="../frontend.js"></script>
+</body>
+
+</html>

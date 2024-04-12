@@ -1,0 +1,91 @@
+.header {
+    display: flex;
+    align-items: center;
+}
+
+@font-face {
+    font-family: Monserat800;
+    src: url(../fonts/ofont.ru_Montserrat\ Alternates.ttf);
+}
+
+@font-face {
+    font-family: Monserat400;
+    src: url(../fonts/ofont.ru_Montserrat\ Alternates\ \(1\).ttf);
+}
+
+/* .wrapper-right {
+    display: flex;
+    justify-content: right;
+} */
+
+/* .navbar-brand {
+    font-size: 2rem;
+} */
+
+*, body {
+    background-color: rgb(247,250,252);
+    font-family: Monserat400;
+    color: rgb(84,57,155);
+}
+
+
+
+.name-brand {
+    color: rgb(84,57,155);
+}
+
+.nav-links {
+    color: rgb(84,57,155);
+}
+
+/* @media (max-width: 800px) {
+    .img-show {
+        display: none;
+    }
+} */
+
+.header-us {
+    text-align: justify;
+}
+
+/* .show-img {
+    max-width: 100%;
+    height: auto;
+} */
+
+.comment-us {
+    text-align: justify;
+}
+
+@media (max-width: 767px) {
+    .img-show1 {
+        display: none;
+        background: rgb(247,250,252);
+    }
+    .img-show {
+        display: inline;
+        background: rgb(247,250,252);
+    }
+}
+
+@media (min-width: 767px) {
+    .img-show1 {
+        display: inline;
+        background: rgb(247,250,252);
+    }
+    .img-show {
+        display: none;
+        background: rgb(247,250,252);
+    }
+}
+
+.btn-itd {
+    color: white;
+    background-color: rgb(84,57,155);
+    transition: 0.3s;
+}
+
+.btn-itd:hover {
+    background-color: rgb(103, 69, 188);;
+    color: white;
+}

@@ -1,0 +1,15 @@
+.footer-links:hover {
+    color: rgb(175, 175, 175);
+
+}
+
+.footer {
+    background-color: rgb(84, 57, 155);
+}
+
+.footer-links {
+    all: inherit;
+    cursor: pointer;
+    color: white;
+    transition: 0.3s;
+}

@@ -1,0 +1,55 @@
+*,
+body {
+    background-color: rgb(247,250,252);
+    font-family: Monserat400;
+    color: rgb(84, 57, 155);
+}
+
+@font-face {
+    font-family: Monserat800;
+    src: url(../fonts/ofont.ru_Montserrat\ Alternates.ttf);
+}
+
+@font-face {
+    font-family: Monserat400;
+    src: url(../fonts/ofont.ru_Montserrat\ Alternates\ \(1\).ttf);
+}
+
+
+@media (max-width: 576px) {
+    .start-name {
+        text-align: center;
+    }
+
+    .avatar {
+        text-align: center;
+    }
+}
+
+@media (min-width: 576px) {
+
+    .avatar {
+        text-align: right;
+    }
+
+}
+
+.style-accordion {
+    background-color: rgb(84, 57, 155);
+    color: white;
+}
+
+.btn-itd {
+    color: white;
+    background-color: rgb(84,57,155);
+    transition: 0.3s;
+}
+
+.btn-itd:hover {
+    background-color: rgb(103, 69, 188);;
+    color: white;
+}
+
+
+
+

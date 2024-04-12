@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/tmp.css">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <!-- header -->
+    <div class="header container mt-5 mb-5">
+        <div class="row align-items-center">
+            <div class="col-sm-6 col-xs-12">
+                <h1 class="start-name">
+                    Convertor
+                </h1>
+            </div>
+            <div class="col-sm-6 col-xs-12 pt-xs-4">
+                <div class="avatar">
+                    <a class="img-ride" href="#"><img src="https://mdbcdn.b-cdn.net/img/new/avatars/2.webp"
+                            class="rounded-circle img-fluid" style="width: 80px;" alt="Avatar" /></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Заголовки -->
+    <div class="container text-center">
+        <div class="row">
+            <div class="col">
+                <h1>Начни заполнять</h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col">
+                <div style="color: black;" class="Build-header">
+                    <h3>Актуальность твоего проекта</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- аккордион -->
+    <div class="container mt-5 mb-5">
+        <div class="row">
+            <div class="col">
+                <div class="accordion accordion-flush" id="accordionExample">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingTwo">
+                            <button style="border-radius: 10px;" id="btn-acc"
+                                class="accordion-button collapsed style-accordion" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false"
+                                aria-controls="collapseTwo">
+                                <h4 id="accordion-quest" class="style-accordion">Что такое актуальность???</h4>
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+                            data-bs-parent="#accordionExample">
+                            <div class="accordion-body fs-4">
+                                Актуальность - одна из частей введения. Нужно написать 5-500 предложений о полезности
+                                своего проекта.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Редактор текста
+    <div class="container mt-5 mb-5">
+        <div class="row">
+            <div class="col">
+                <textarea>
+                    
+                </textarea>
+            </div>
+        </div>
+    </div> -->
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12 mb-5 text-center">
+                <a href="" class="btn btn-itd btn-lg text-uppercase">Далее</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12 mt-5 mb-5 text-center">
+                <a href="Start.html" class="btn btn-itd btn-lg text-uppercase">Назад</a>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+        //скрипт стилей аккордиона при нажатии
+
+        let accordion_name = document.getElementById('accordion-quest'); //header аккордиона
+        let btn_acc = document.getElementById('btn-acc'); // кнопка аккордиона
+        let open_acc = false; //проверка на закрытость и открытость аккордиона
+        btn_acc.onclick = function () {
+            if (open_acc == false) {
+
+                //color
+                accordion_name.style.backgroundColor = 'white';
+                accordion_name.style.color = 'black';
+                btn_acc.style.backgroundColor = 'white';
+
+                //transition
+                accordion_name.style.transition = '0.3s';
+                btn_acc.style.transition = '0.3s';
+
+                open_acc = true;
+            }
+            else {
+
+                //color
+                accordion_name.style.backgroundColor = 'rgb(84, 57, 155)';
+                accordion_name.style.color = 'white';
+                btn_acc.style.backgroundColor = 'rgb(84, 57, 155)';
+
+                //transition
+                accordion_name.style.transition = '0.3s';
+                btn_acc.style.transition = '0.3s';
+
+                open_acc = false;
+            }
+
+
+        }
+    </script>
+
+    <!-- Tiny cloud - редактор текста
+    <script src="https://cdn.tiny.cloud/1/arhcc2ybkw0s1h5crx8wxjtmm7ohr06b0ha33jxzxfxi033z/tinymce/6/tinymce.min.js"
+        referrerpolicy="origin"></script> -->
+
+    <!-- Подключение редактора -->
+    <!-- <script>
+        tinymce.init({
+            selector: 'textarea',
+            plugins: 'ai tinycomments mentions anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed permanentpen footnotes advtemplate advtable advcode editimage tableofcontents mergetags powerpaste tinymcespellchecker autocorrect a11ychecker typography inlinecss',
+            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | align lineheight | tinycomments | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+            // tinycomments_mode: 'embedded',
+            // tinycommen   ts_author: 'Author name',
+            // mergetags_list: [
+            //     { value: 'First.Name', title: 'First Name' },
+            //     { value: 'Email', title: 'Email' },
+            // ],
+            // ai_request: (request, respondWith) => respondWith.string(() => Promise.reject("See docs to implement AI Assistant")),
+        });
+    </script> -->
+
+    <script src="../library/bootstrap.bundle.min.js"></script>
+    <script src="../frontend.js"></script>
+</body>
+
+</html>

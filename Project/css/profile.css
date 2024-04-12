@@ -1,0 +1,32 @@
+*,
+body {
+    background-color: rgb(247,250,252);
+    font-family: Monserat400;
+    color: rgb(84, 57, 155);
+}
+
+@font-face {
+    font-family: Monserat800;
+    src: url(../fonts/ofont.ru_Montserrat\ Alternates.ttf);
+}
+
+@font-face {
+    font-family: Monserat400;
+    src: url(../fonts/ofont.ru_Montserrat\ Alternates\ \(1\).ttf);
+}
+
+.btn-itd {
+    background-color: rgb(84, 57, 155);
+    color: white;
+    cursor: pointer;
+}
+
+.btn-itd:hover {
+    background-color: rgb(106, 72, 193);
+    color: white;
+}
+
+.name-of-title {
+    color: black;
+}
+

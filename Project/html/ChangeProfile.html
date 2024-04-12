@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/profile.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="container rounded mt-5 mb-5">
+        <div class="row d-flex justify-content-center">
+            
+
+
+            <div class="col-md-9 border-right">
+                <div class="p-3 py-5">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="text-right">Изменение профиля</h4>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-4"><label class="labels">Имя</label>
+                            <input id="changeFirstname" type="text" class="form-control"
+                                placeholder="Имя" value="">
+                        </div>
+                        <div class="col-md-4"><label class="labels">Фамилия</label><input id="changeSecondname" type="text"
+                                class="form-control" value="" placeholder="Фамилия"></div>
+                        <div class="col-md-4"><label class="labels">Отчество</label><input id="changeThirdname" type="text"
+                                class="form-control" value="" placeholder="Отчество"></div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-md-12"><label class="labels">Школа</label><input id="changeShoolName" type="text"
+                                class="form-control" placeholder="Полное название школы" value="">
+                        </div>
+                    </div>
+                    <div class="row justify-content-around">
+                        <div class="col-md-3 mt-3"><label class="labels">Класс</label><input id="changeClass" type="text"
+                                class="form-control" placeholder="Номер класса" value="">
+                        </div>
+                        <div class="col-md-3 mt-3"><label class="labels">Буква класса</label><input id="changeLetterClass" type="text"
+                                class="form-control" placeholder="Буква" value="">
+                        </div>
+                    </div>  
+                    <div class="row mt-4">
+                        <div class="col-md-6"><label class="labels">Страна</label><input id="changeCountry" type="text"
+                                class="form-control" placeholder="Страна" value=""></div>
+                        <div class="col-md-6"><label class="labels">Город</label><input id="changeCity" type="text" class="form-control"
+                                value="" placeholder="Город"></div>
+                    </div>
+                    <div class="mt-5 text-center"><button id="savingChange" href="Profile.html" class="btn btn-primary btn-itd profile-button" type="button">Сохранить</button></div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <script src="../library/bootstrap.bundle.min.js"></script>
+    <script src="/frontend.js"></script>
+</body>
+
+</html>

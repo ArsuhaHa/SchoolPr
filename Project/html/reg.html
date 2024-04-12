@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/reg.css">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-10">
+                <section class="vh-100">
+                    <div class="container py-5 h-100">
+                        <div class="row d-flex align-items-center justify-content-center h-100">
+                            <div class="col-md-8 col-lg-7 col-xl-6">
+                                <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.svg"
+                                    class="img-fluid" alt="Phone image">
+                            </div>
+                            <div class="col-md-7 col-lg-5 col-xl-5 offset-xl-1">
+                                <form>
+                                    <!-- Email input -->
+                                    <div class="form-outline mb-4">
+                                        <label class="form-label" for="emailReg">E-mail адрес</label>
+                                        <input type="email" id="emailReg" class="form-control form-control-lg" />
+                                    </div>
+
+                                    <!-- Password input -->
+                                    <div class="form-outline mb-4">
+                                        <label class="form-label" for="nameReg">ФИО</label>
+                                        <input type="text" id="nameReg"
+                                            class="form-control form-control-lg" />
+                                    </div>
+
+                                    <div class="form-outline mb-4">
+                                        <label class="form-label" for="passReg">Пароль</label>
+                                        <input type="password" id="passReg"
+                                            class="form-control form-control-lg" />
+                                    </div>
+
+                                    <div class="form-outline mb-4">
+                                        <label class="form-label" for="passConReg">Подтверждение пароля</label>
+                                        <input type="password" id="passConReg"
+                                            class="form-control form-control-lg" />
+                                    </div>
+
+                                    <div class="errorReg mb-5">
+                                        <div class="errorRegText text-center"></div>
+                                    </div>
+
+                                    <!-- Submit button -->
+                                    <div class="text-center mb-4"> 
+                                        <button id="registerBtn" type="submit" class="btn btn-primary btn-lg btn-block btn-itd">Регистрация</button>
+                                    </div>
+                                    <div class="d-flex justify-content-center align-items-center mb-4">
+                                        <!-- Checkbox -->
+                                        Уже есть аккаунт? 
+                                        <a href="signIn.html">Войти</a>
+                                    </div>
+                                    <div class="container">
+                                        <div class="row">
+                                            <div class="col-12 mt-5 mb-5 text-center">
+                                                <a href="MainPage.html" class="btn btn-itd btn-lg text-uppercase">На главную</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+   
+
+    <script src="../library/bootstrap.bundle.min.js"></script>
+    <script src="/frontend.js"></script>
+</body>
+
+</html>

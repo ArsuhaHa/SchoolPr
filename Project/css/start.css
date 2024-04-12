@@ -1,0 +1,107 @@
+*,
+body {
+    background-color: rgb(247,250,252);
+    font-family: Monserat400;
+    color: rgb(84, 57, 155);
+}
+
+@font-face {
+    font-family: Monserat800;
+    src: url(../fonts/ofont.ru_Montserrat\ Alternates.ttf);
+}
+
+@font-face {
+    font-family: Monserat400;
+    src: url(../fonts/ofont.ru_Montserrat\ Alternates\ \(1\).ttf);
+}
+
+
+@media (max-width: 576px) {
+    .start-name {
+        text-align: center;
+    }
+
+    .avatar {
+        text-align: center;
+    }
+}
+
+@media (min-width: 576px) {
+
+    .avatar {
+        text-align: right;
+    }
+
+}
+
+
+
+
+
+.card-link {
+    text-decoration: none;
+}
+
+.card-comment-text {
+    text-align: justify;
+}
+
+.card-showing {
+    max-width: 30rem;
+    padding: 10px;
+    background-color: rgb(84, 57, 155);
+    transition: 0.5s;
+}
+
+.card-body-showing {
+    background-color: rgb(84, 57, 155);
+    color: white;
+    transition: 0.5s;
+}
+
+.card-title-showing {
+    background-color: rgb(84, 57, 155);
+    color: white;
+    transition: 0.5s;
+}
+
+.card-text-showing {
+    background-color: rgb(84, 57, 155);
+    color:white;
+    transition: 0.5s;
+}
+
+
+.card-showing:hover {
+    background-color: rgb(51, 35, 92);
+}
+
+.card-showing:hover > .card-body-showing {
+    background-color: rgb(51, 35, 92);
+    color: white;
+}
+
+.card-showing:hover > .card-body-showing > .card-title-showing {
+    background-color: rgb(51, 35, 92);
+    color: white;
+}
+
+.card-showing:hover > .card-body-showing > .card-text-showing {
+    background-color: rgb(51, 35, 92);
+    color: white;
+}
+
+p {
+    height: 150px;
+}
+
+.btn-itd {
+    color: white;
+    background-color: rgb(84,57,155);
+    transition: 0.3s;
+}
+
+.btn-itd:hover {
+    background-color: rgb(103, 69, 188);;
+    color: white;
+}
