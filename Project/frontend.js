@@ -120,30 +120,30 @@ async function registerUser() {
         return;
     }
 
-            if (password !== conPassword) {
-                console.log("Пароли не совпадают");
-                printError(3);
+    if (password !== conPassword) {
+        console.log("Пароли не совпадают");
+        printError(3);
 
         return;
     }
 
-                const data = { email, fullName, password };
+    const data = { email, fullName, password };
 
-                try {
-                    const response = await postData('/register', data);
+    try {
+        const response = await postData('/register', data);
 
-                    console.log(response);
-                    console.log('Регистрация успешна, токен:', response.token);
+        console.log(response);
+        console.log('Регистрация успешна, токен:', response.token);
 
-                    clearError();
+        clearError();
 
         sessionStorage.setItem('token', response.token);
         sessionStorage.setItem('id_student', response.id_student);
 
-                    window.location.href = "Start.html";
-                } catch (error) {
+        window.location.href = "Start.html";
+    } catch (error) {
         console.error('Ошибка при регистрации:', error.message);
-                    printError(4);
+        printError(4);
     }
 }
 
@@ -163,8 +163,8 @@ async function loginUser() {
     const password = document.getElementById('passwordLogin').value;
     console.log(email);
 
-    localStorage.removeItem('token');
-    localStorage.removeItem('id_student');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('id_student');
     // const email = "ars@mail.ru";
     // const password = "123";
 
@@ -183,8 +183,8 @@ async function loginUser() {
 
                     clearError();
 
-                    localStorage.setItem('token', response.token);
-                    localStorage.setItem('id_student', response.id_student);
+                    sessionStorage.setItem('token', response.token);
+                    sessionStorage.setItem('id_student', response.id_student);
 
                     window.location.href = "Start.html";
                 }
@@ -228,12 +228,12 @@ async function changeProfile() {
     }
 
 
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
 
     
 
     if (!token) {
-        console.error('Токен не найден в localStorage');
+        console.error('Токен не найден в sessionStorage');
         return;
     }
 
@@ -255,7 +255,7 @@ async function changeProfile() {
         const response = await putData('/students/me', data);
         console.log('Данные успешно обновлены:', response);
 
-        localStorage.setItem('profileData', JSON.stringify(response));
+        sessionStorage.setItem('profileData', JSON.stringify(response));
 
         window.location.href = "Profile.html";
 
@@ -280,8 +280,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Получаем данные из localStorage
-    const profileData = JSON.parse(localStorage.getItem('profileData'));
+    // Получаем данные из sessionStorage
+    const profileData = JSON.parse(sessionStorage.getItem('profileData'));
 
     if (profileData) {
         // Обновляем контент на странице
@@ -295,10 +295,10 @@ document.addEventListener('DOMContentLoaded', () => {
         classNameProfile.innerHTML = `${profileData.school_class}${profileData.school_letter}`;
         countryAndCityProfile.innerHTML = `${profileData.country} - ${profileData.city}`;
 
-        // Очищаем данные из localStorage после использования, если нужно
-        localStorage.removeItem('profileData');
+        // Очищаем данные из sessionStorage после использования, если нужно
+        sessionStorage.removeItem('profileData');
     } else {
-        console.error('Данные профиля не найдены в localStorage');
+        console.error('Данные профиля не найдены в sessionStorage');
     }
 });
 
@@ -309,10 +309,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 async function getProfileData() {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
 
     if (!token) {
-        console.error('Токен не найден в localStorage');
+        console.error('Токен не найден в sessionStorage');
         return;
     }
 
