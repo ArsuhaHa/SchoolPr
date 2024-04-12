@@ -371,7 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // СОЗДАНИЕ ПРОЕКТА
 async function createProject() {
-    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFyc2VuYXZ0b3JAbWFpbC5ydSIsIklEX1NUVURFTlQiOjEsImlhdCI6MTcxMjIyNzI5MCwiZXhwIjoxNzEyMjMwODkwfQ.G591gDwL_Nw9yHJHufzlUzulWEYaQYNK6k9mnsXahLg"; // Замените на ваш токен доступа
+    const token = sessionStorage.getItem('token');
     const idStudent = "1";
     const url = '/projects';
 
@@ -408,7 +408,7 @@ async function createProject() {
 
 // ОБНОВЛЕНИЕ ПРОЕКТА
 async function updateProject() {
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFyc2VuYXZ0b3JAbWFpbC5ydSIsIklEX1NUVURFTlQiOjEsImlhdCI6MTcxMjIyNzI5MCwiZXhwIjoxNzEyMjMwODkwfQ.G591gDwL_Nw9yHJHufzlUzulWEYaQYNK6k9mnsXahLg'; // Замените на ваш токен доступа
+    const token = sessionStorage.getItem('token');
     const projectId = '2';
     const studentId = '1';
     const project = {
@@ -441,7 +441,7 @@ async function updateProject() {
 
 // ПОЛУЧЕНИЕ ПРОЕКТА СТУДЕНТА ПО ЕГО ID
 async function getProjectData() {
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFyc2VuYXZ0b3JAbWFpbC5ydSIsIklEX1NUVURFTlQiOjEsImlhdCI6MTcxMjIyNzI5MCwiZXhwIjoxNzEyMjMwODkwfQ.G591gDwL_Nw9yHJHufzlUzulWEYaQYNK6k9mnsXahLg'; // Замените на ваш токен доступа
+    const token = sessionStorage.getItem('token');
     const projectId = '1';
     const url = `/projects/${projectId}`;
 
@@ -495,7 +495,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             if (isDownload) {
-                await downloadProject(projectId);
+                const location = await downloadProject(projectId);
+
+                if (!location) {
+                    return;
+                }
+
+                immitateClick(location);
 
                 return;
             }
@@ -536,6 +542,15 @@ document.addEventListener('DOMContentLoaded', () => {
         })
     }
 });
+
+function immitateClick(location) {
+    const a = document.createElement('a');
+    a.href = location;
+    a.classList.add("d-none");
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
 
 
 // ПОЛУЧЕНИЕ ВСЕХ ПРОЕКТОВ СТУДЕНТА
@@ -600,27 +615,20 @@ async function downloadProject(projectId) {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`
-            }
+            },
+            redirect: "manual",
         });
-        // Получение данных о проекте для скачивания
-        const projectData = await response.json();
-        console.log('Данные о проекте для скачивания:', projectData);
-        // Обработка полученных данных, если необходимо
+
+        const body = await response.json();
+        const { location } = body;
+
+        if (location) {
+            return location;
+        }
     } catch (error) {
         console.error('Ошибка:', error.message);
     }
 }
-// downloadProject();
-
-
-
-
-
-
-
-
-
-
 
 
 // // Login user - пон надатию на кнопку выполняется функция loginUser();
