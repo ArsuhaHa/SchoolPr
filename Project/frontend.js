@@ -148,18 +148,14 @@ async function registerUser() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const registerBtn = document.getElementById('registerBtn');
+    const registerform = document.getElementById('register_form');
 
-    registerBtn.addEventListener('click', async (event) => {
+    registerform.addEventListener('submit', async (event) => {
         event.preventDefault();
 
         await registerUser();
     });
 });
-
-
-
-
 
 // АВТОРИЗАЦИЯ ПОЛЬЗОВАТЕЛЯ
 async function loginUser() {
