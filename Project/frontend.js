@@ -227,10 +227,7 @@ async function changeProfile() {
         return;
     }
 
-
     const token = sessionStorage.getItem('token');
-
-    
 
     if (!token) {
         console.error('Токен не найден в sessionStorage');
