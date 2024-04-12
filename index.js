@@ -211,10 +211,6 @@ app.put('/students/me', async (req, res) => {
 });
 
 
-
-
-
-
 app.get('/students/me', async (req, res) => {
     const TOKEN = req.headers.authorization.split(' ')[1];
 
@@ -265,9 +261,6 @@ app.get('/students/me', async (req, res) => {
         res.status(501).json({ message: error });
     }
 });
-
-
-
 
 //СОЗДАЁТ ПРОЕКТ СТУДЕНТУ: +
 app.post('/projects', async (req, res) => {
@@ -354,8 +347,6 @@ app.get('/projects', async (req, res) => {
         res.status(500).json({ message: error });
     }
 });
-
-
 
 // ИЗМЕНЕНИЕ ПРОЕКТА СТУДЕНТА ПО ID: +
 app.put('/projects/:projectId', async (req, res) => {
