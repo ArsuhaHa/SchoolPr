@@ -1,5 +1,7 @@
 const { join } = require('node:path');
 const express = require('express');
+const session = require('express-session');
+const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const { threadId } = require('worker_threads');
 const app = express();
@@ -9,6 +11,12 @@ const Template = require('./template.js');
 
 // Подключаем middleware для разбора данных формы и JSON
 app.use(express.json());
+app.use(session({
+    secret: 'secret',
+    resave: false,
+    cookie: { secure: "auto", maxAge: 60_000 },
+    saveUninitialized: true,
+  }))
 
 // Указываем путь к папке, содержащей статические HTML файлы
 app.use(express.static(path.join(__dirname, 'Project')));
@@ -90,10 +98,10 @@ app.post('/login', async (req, res) => {
 
             if (await bcrypt.compare(password, storedPassword)) {
                 const tokenResult = await client.query('SELECT token FROM token_student WHERE id_student = $1', [idStudent]);
-                client.release();
 
                 if (tokenResult.rows.length === 1) {
                     const token = tokenResult.rows[0].token;
+
                     res.status(200).json({ token, idStudent });
                     return;
                 }
@@ -309,24 +317,6 @@ app.get('/projects', async (req, res) => {
         if (result.rows.length === 1 && result.rows[0].token === TOKEN) {
             const ID_STUDENT = result.rows[0].id_student;
             const PROJECTS = [];
-
-            PROJECTS.push(
-                {
-                    PROJECT_ID: 1,
-                    projects_name: "TEST1",
-                    TEXT: {
-                        0: "TEST"
-                    }
-                },
-                {
-                    PROJECT_ID: 2,
-                    projects_name: "TEST2",
-                    TEXT: {
-                        0: "TEST"
-                    }
-                }
-            )
-
             const PROJECTS_INFO = await client.query('SELECT * FROM projects WHERE id_student = $1', [ID_STUDENT]);
 
             for (const project of PROJECTS_INFO.rows) {
@@ -496,7 +486,6 @@ app.get('/projects/:projectId/download', async (req, res) => {
             const info = await client.query('SELECT * FROM projects WHERE id_project = $1', [PROJECT_ID]);
             const texts = await client.query('SELECT * FROM text_project WHERE id_project = $1', [PROJECT_ID]);
             const student = await client.query('SELECT * FROM students WHERE id_student = $1', [id_student]);
-            const template = new Template(TEMPLATE_PATH);
 
             data.FIRST_NAME = student.rows[0].first_name;
             data.SECOND_NAME = student.rows[0].last_name;
@@ -512,24 +501,58 @@ app.get('/projects/:projectId/download', async (req, res) => {
                 data[`text_inner${textStep.step_number}`] = textStep.step_inner;
             }
 
-            template.render(data);
-            res
-                .status(200)
-                .setHeader("Content-Disposition", "attachment; filename=document.docx")
-                .contentType('application/vnd.openxmlformats-officedocument.wordprocessingml.document')
-                .send(template.generate());
+            const downloads = req.session?.downloads || [];
+            const id = uuidv4();
+            const location = `/projects/${PROJECT_ID}/download/${id}`;
 
+            downloads.push({
+                id,
+                data,
+            });
+
+            req.session.downloads = downloads;
+            req.session.save(() => {
+                res.status(200).send({ location })
+            });
         } else {
             console.log("Ошибка авторизации в методе (PROJECT DOWNLOAD)");
             res.status(500).json({ message: "Ошибка авторизации в (PROJECT DOWNLOAD)" })
         }
-
     } catch (error) {
         console.log(error);
         res.status(501).json({ message: error });
     } finally {
         client.release();
     }
+});
+
+app.get('/projects/:projectId/download/:fileId', async (req, res) => {
+    const { fileId } = req.params;
+    const downloads = req.session?.downloads;
+
+    if (!Array.isArray(downloads)) {
+        res.status(404).send();
+
+        return;
+    }
+
+    const item = downloads.find(({ id }) => id === fileId);
+
+    if (!item) {
+        res.status(404).send();
+
+        return;
+    }
+
+    const { data } = item;
+    const template = new Template(TEMPLATE_PATH);
+
+    template.render(data);
+    res
+        .status(200)
+        .contentType('application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+        .attachment("document.docx")
+        .send(template.generate());
 });
 
 const PORT = process.env.PORT || 3000;
