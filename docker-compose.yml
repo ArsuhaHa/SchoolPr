@@ -11,7 +11,10 @@ services:
     volumes:
       - .:/app
     entrypoint: npm
-    command: start
+    command:
+      - run
+      - dev
+    restart: always
   deps:
     image: node:20.9
     working_dir: /app
@@ -34,6 +37,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: on-failure
 
 volumes:
   db:
