@@ -525,6 +525,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    const logoutElement = document.getElementById("logout");
+
+    if (logoutElement) {
+        logoutElement.addEventListener("click", () => {
+            sessionStorage.setItem('token', '');
+            sessionStorage.setItem('id_student', '');
+            sessionStorage.setItem('profileData', '');
+        })
+    }
+});
+
 
 // ПОЛУЧЕНИЕ ВСЕХ ПРОЕКТОВ СТУДЕНТА
 async function getStudentProjectsInfo() {
