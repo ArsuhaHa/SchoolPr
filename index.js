@@ -1,9 +1,11 @@
+const { join } = require('node:path');
 const express = require('express');
 const path = require('path');
 const { threadId } = require('worker_threads');
 const app = express();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const Template = require('./template.js');
 
 // Подключаем middleware для разбора данных формы и JSON
 app.use(express.json());
@@ -12,6 +14,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'Project')));
 
 const { Pool } = require('pg');
+const TEMPLATE_PATH = join(__dirname, "template.docx");
 
 const pool = new Pool({
     user: 'postgres',
@@ -22,10 +25,10 @@ const pool = new Pool({
 });
 
 async function generateId() {
+    const client = await pool.connect();
+
     try {
-        const client = await pool.connect();
         const result = await client.query('SELECT MAX(id_student) FROM students');
-        client.release();
 
         if (result.rows[0].max !== null) {
             return parseInt(result.rows[0].max) + 1;
@@ -36,14 +39,16 @@ async function generateId() {
     } catch (error) {
         console.error('Ошибка при генерации id:', error);
         throw error;
+    } finally {
+        client.release();
     }
 }
 
 async function generateProjectId() {
+    const client = await pool.connect();
+
     try {
-        const client = await pool.connect();
         const result = await client.query('SELECT MAX(id_project) FROM projects');
-        client.release();
 
         if (result.rows[0].max !== null) {
             return parseInt(result.rows[0].max) + 1;
@@ -54,6 +59,8 @@ async function generateProjectId() {
     } catch (error) {
         console.error('Ошибка при генерации id:', error);
         throw error;
+    } finally {
+        client.release();
     }
 }
 
@@ -72,11 +79,9 @@ pool.connect((err, client, release) => {
 //АВТОРИЗАЦИЯ ПОЛЬЗОВАТЕЛЯ: +
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
-    // console.log(email)
-    // console.log(password);
+    const client = await pool.connect();
 
     try {
-        const client = await pool.connect();
         const user = await client.query('SELECT * FROM students WHERE email = $1', [email]);
 
         if (user.rows.length === 1) {
@@ -95,11 +100,12 @@ app.post('/login', async (req, res) => {
             }
         }
 
-        client.release();
         res.status(404).json({ message: "Пользователь не найден или пароль неверен", error: 404 });
     } catch (error) {
         console.error('Ошибка при авторизации пользователя:', error);
         res.status(500).json({ message: 'Ошибка при авторизации пользователя' });
+    } finally {
+        client.release();
     }
 });
 
@@ -107,7 +113,7 @@ app.post('/login', async (req, res) => {
 // РЕГИСТРАЦИЯ ПОЛЬЗОВАТЕЛЯ: +
 app.post('/register', async (req, res) => {
     const { email, fullName, password } = req.body;
-
+    
     try {
         const client = await pool.connect();
         const result = await client.query('SELECT * FROM students WHERE email = $1', [email]);
@@ -147,30 +153,29 @@ app.post('/register', async (req, res) => {
 // ИЗМЕНЕНИЕ ДАННЫХ О СТУДЕНТЕ: +
 app.put('/students/me', async (req, res) => {
     const { token, firstName, secondName, thirdName, schoolName, schoolClass, schoolLetter, country, city } = req.body;
-    let newData = {};
+    const client = await pool.connect();
+
     try {
-        const client = await pool.connect();
         const result = await client.query('SELECT token, id_student FROM token_student WHERE token = $1', [token]);
         const idStudent = await result.rows[0].id_student;
         const class_student = schoolClass + schoolLetter;
 
-
-
         if (result.rows.length === 1 && token === result.rows[0].token) {
             await client.query(`
-        UPDATE students
-        SET 
-            last_name = $1,
-            first_name = $2,
-            patronymic = $3,
-            name_school = $4,
-            class = $5,
-            city = $6,
-            country = $7
-        WHERE
-            id_student = $8`,
+                UPDATE students
+                SET 
+                    last_name = $1,
+                    first_name = $2,
+                    patronymic = $3,
+                    name_school = $4,
+                    class = $5,
+                    city = $6,
+                    country = $7
+                WHERE
+                    id_student = $8`,
                 [secondName, firstName, thirdName, schoolName, class_student, city, country, idStudent]
             );
+
             const CHANGE_FIRST_NAME    = firstName;
             const CHANGE_SECOND_NAME   = secondName;
             const CHANGE_THIRD_NAME    = thirdName;
@@ -179,7 +184,7 @@ app.put('/students/me', async (req, res) => {
             const CHANGE_SCHOOL_LETTER = schoolLetter;
             const CHANGE_COUNTRY       = country;
             const CHANGE_CITY          = city;
-            newData = {
+            const newData = {
                 first_name: CHANGE_FIRST_NAME,
                 second_name: CHANGE_SECOND_NAME,
                 third_name: CHANGE_THIRD_NAME,
@@ -200,15 +205,17 @@ app.put('/students/me', async (req, res) => {
         console.log("Не получилось вставить данные");
         console.log(error);
         res.status(500).json({ message: 'гг' });
+    } finally {
+        client.release();
     }
 });
 
 
 app.get('/students/me', async (req, res) => {
     const TOKEN = req.headers.authorization.split(' ')[1];
+    const client = await pool.connect();
 
     try {
-        const client = await pool.connect();
         const result = await client.query('SELECT token, id_student FROM token_student WHERE token = $1', [TOKEN]);
 
         let DATA = {};
@@ -239,10 +246,6 @@ app.get('/students/me', async (req, res) => {
                 CLASS = "Не указано";
             }
 
-
-
-
-
             DATA = { first_name: FIRST_NAME, last_name: LAST_NAME, third_name: THIRD_NAME, name_school: NAME_SCHOOL, city: city, country: country, class: CLASS};
             // console.log(DATA);
             res.status(200).json({ message: "Получение данных для скачивания проекта", DATA });
@@ -252,28 +255,25 @@ app.get('/students/me', async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(501).json({ message: error });
+    } finally {
+        client.release();
     }
 });
 
 //СОЗДАЁТ ПРОЕКТ СТУДЕНТУ: +
 app.post('/projects', async (req, res) => {
     const DATA = req.body;
-
-
     const TOKEN = DATA.token;
     const IDSTUDENT = DATA.idStudent;
     const NAME_PROJECT = DATA.project.projectName;
     const PROJECT_TEXT = DATA.project.text;
+    const client = await pool.connect();
 
     try {
-        const client = await pool.connect();
         const result = await client.query('SELECT token, id_student FROM token_student WHERE id_student = $1', [IDSTUDENT]);
 
-
         if (result.rows.length === 1 && TOKEN === result.rows[0].token && IDSTUDENT == result.rows[0].id_student) {
-
             const ID_PROJECT = await generateProjectId();
-
 
             await client.query('INSERT INTO projects (id_project, project_name, create_date, id_student) VALUES ($1, $2, $3, $4)', [ID_PROJECT, NAME_PROJECT, null, IDSTUDENT]);
 
@@ -283,61 +283,74 @@ app.post('/projects', async (req, res) => {
 
             await Promise.all(textInsertValues.map(async (values) => {
                 await client.query(
-                    'INSERT INTO textproject (id_project, step_number, step_inner) VALUES ($1, $2, $3)',
+                    'INSERT INTO text_project (id_project, step_number, step_inner) VALUES ($1, $2, $3)',
                     values
                 );
             }));
-
-            client.release();
 
             res.status(200).json({ message: 'Проект успешно создан', projectId: ID_PROJECT });
         }
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: 'Внутренняя ошибка сервера. Что-то пошло не так.' });
+    } finally {
+        client.release();
     }
 });
 
 // ВОЗВРАЩАЕТ ВСЕ ПРОЕКТЫ СТДЕНТА: +
 app.get('/projects', async (req, res) => {
     const TOKEN = req.headers.authorization.split(' ')[1];
-
-    console.log(TOKEN); // Выводим токен в консоль (может быть полезно для отладки
-
+    const client = await pool.connect();
 
     try {
-        const client = await pool.connect();
         const result = await client.query('SELECT token, id_student FROM token_student WHERE token = $1', [TOKEN]);
 
         if (result.rows.length === 1 && result.rows[0].token === TOKEN) {
             const ID_STUDENT = result.rows[0].id_student;
             const PROJECTS = [];
 
+            PROJECTS.push(
+                {
+                    PROJECT_ID: 1,
+                    projects_name: "TEST1",
+                    TEXT: {
+                        0: "TEST"
+                    }
+                },
+                {
+                    PROJECT_ID: 2,
+                    projects_name: "TEST2",
+                    TEXT: {
+                        0: "TEST"
+                    }
+                }
+            )
+
             const PROJECTS_INFO = await client.query('SELECT * FROM projects WHERE id_student = $1', [ID_STUDENT]);
+
             for (const project of PROJECTS_INFO.rows) {
-                // console.log(project);
                 const PROJECT_ID = project.id_project;
                 const PROJECT_NAME = project.project_name;
-                const TEXT_PROJECT = await client.query('SELECT * FROM textproject WHERE id_project = $1', [PROJECT_ID]);
+                const TEXT_PROJECT = await client.query('SELECT * FROM text_project WHERE id_project = $1', [PROJECT_ID]);
                 const TEXT = {};
+
                 for (const textStep of TEXT_PROJECT.rows) {
                     TEXT[textStep.step_number] = textStep.step_inner;
                 }
+
                 PROJECTS.push({ PROJECT_ID, projects_name: PROJECT_NAME, TEXT });
-
             }
-
-            client.release();
 
             const DATA = { ID_STUDENT, PROJECTS }
 
             res.status(200).json({ message: "Все проекты студента", info: DATA });
-            console.log("Проекты студента отправлены");
-
         }
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: error });
+    } finally {
+        client.release();
     }
 });
 
@@ -347,19 +360,15 @@ app.put('/projects/:projectId', async (req, res) => {
     const PROJECT = req.body.project;
     const STUDENT_ID = req.body.studentId;
     const PROJECT_ID = req.params.projectId;
-    // console.log(TOKEN);
-    // console.log(PROJECT);
-    // console.log(STUDENT_ID);
-    // console.log(PROJECT_ID);
+    const client = await pool.connect();
 
     try {
-        const client = await pool.connect();
         const result = await client.query('SELECT token, id_student FROM token_student WHERE token = $1', [TOKEN]);
 
         if (result.rows.length === 1 && result.rows[0].token === TOKEN && result.rows[0].id_student == STUDENT_ID) {
             await client.query('UPDATE projects SET project_name = $1 WHERE id_project = $2', [PROJECT.projectName, PROJECT_ID]);
+            await client.query('DELETE FROM text_project WHERE id_project = $1', [PROJECT_ID]);
 
-            await client.query('DELETE FROM textproject WHERE id_project = $1', [PROJECT_ID]);
             const PROJECT_TEXT = PROJECT.text;
             const textInsertValues = Object.entries(PROJECT_TEXT).map(([stepNumber, stepText]) => {
                 return [PROJECT_ID, stepNumber, stepText];
@@ -369,12 +378,11 @@ app.put('/projects/:projectId', async (req, res) => {
 
             await Promise.all(textInsertValues.map(async (values) => {
                 await client.query(
-                    'INSERT INTO textproject (id_project, step_number, step_inner) VALUES ($1, $2, $3)',
+                    'INSERT INTO text_project (id_project, step_number, step_inner) VALUES ($1, $2, $3)',
                     values
                 );
             }));
-            client.release();
-            console.log(PROJECT);
+
             res.status(200).json({ message: 'Проект успешно изменен', project: PROJECT });
         } else {
             res.status(400).json({ message: "не авторизован" });
@@ -382,34 +390,34 @@ app.put('/projects/:projectId', async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Ошибка сервера. Что-то пошло не так.' });
+    } finally {
+        client.release();
     }
 });
 
 //ПОЛУЧЕНИЕ ПРОЕКТА ПО ID: +
 app.get('/projects/:projectId', async (req, res) => {
-
     const TOKEN = req.headers.authorization.split(' ')[1];
     const PROJECT_ID = req.params.projectId;
+    const client = await pool.connect();
 
     try {
-        const client = await pool.connect();
         const result = await client.query('SELECT token, id_student FROM token_student WHERE token = $1', [TOKEN]);
 
         if (result.rows.length === 1 && result.rows[0].token === TOKEN) {
 
             const PROJECT_INFO = await client.query('SELECT * FROM projects WHERE id_project = $1', [PROJECT_ID]);
-            const PROJECT_INNER = await client.query('SELECT * FROM textproject WHERE id_project = $1', [PROJECT_ID]);
+            const PROJECT_INNER = await client.query('SELECT * FROM text_project WHERE id_project = $1', [PROJECT_ID]);
 
 
             const PROJECT = PROJECT_INFO.rows[0];
             const TEXT = {};
+
             for (const textStep of PROJECT_INNER.rows) {
                 TEXT[textStep.step_number] = textStep.step_inner;
             }
 
             const DATA = { PROJECT, TEXT };
-
-            client.release();
 
             res.status(200).json({ message: "Все проекты студента", info: DATA });
             console.log("Проекты студента отправлены");
@@ -417,31 +425,33 @@ app.get('/projects/:projectId', async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: error });
+    } finally {
+        client.release();
     }
-});
+}); 
 
 
 // УДАЛЕНИЕ ПРОЕКТА ПО ID: +
 app.delete('/projects/:projectId', async (req, res) => {
     const TOKEN = req.headers.authorization.split(' ')[1];
     const PROJECT_ID = req.params.projectId;
+    const client = await pool.connect();
 
     try {
-        const client = await pool.connect();
         const result = await client.query('SELECT token, id_student FROM token_student WHERE token = $1', [TOKEN]);
 
         if (result.rows.length === 1 && result.rows[0].token === TOKEN) {
-            await client.query('DELETE FROM textproject WHERE id_project = $1', [PROJECT_ID]);
-
+            await client.query('DELETE FROM text_project WHERE id_project = $1', [PROJECT_ID]);
             await client.query('DELETE FROM projects WHERE id_project = $1', [PROJECT_ID]);
         } else {
             console.log("Ошибка авторизации (метод DELETE PROJECT)");
         }
-        client.release();
-        res.status(200).json({ message: "Успешное удаление проекта" });
 
+        res.status(200).json({ message: "Успешное удаление проекта" });
     } catch (error) {
         console.log(error);
+    } finally {
+        client.release();
     }
 });
 
@@ -449,55 +459,66 @@ app.delete('/projects/:projectId', async (req, res) => {
 app.get('/projects/:projectId/download', async (req, res) => {
     const TOKEN = req.headers.authorization.split(' ')[1];
     const PROJECT_ID = req.params.projectId;
+    const client = await pool.connect();
 
     try {
-        const client = await pool.connect();
         const result = await client.query('SELECT token, id_student FROM token_student WHERE token = $1', [TOKEN]);
-        const ID_STUDENT = result.rows[0].id_student;
+        const id_student = result.rows[0].id_student;
 
-        let DATA = {};
+        let data = {
+            FIRST_NAME: "",
+            SECOND_NAME: "",
+            THIRD_NAME: "",
+            NAME_SCHOOL: "",
+            CLASS: "",
+            CITY: "",
+            COUNTRY: "",
+            PROJECT_NAME: "",
+            CREATE_DATE: "",
+            text_inner1: "",
+            text_inner2: "",
+            text_inner3: "",
+            text_inner4: "",
+            text_inner5: "",
+            text_inner6: "",
+            text_inner7: "",
+            text_inner8: "",
+            text_inner9: "",
+            text_inner10: "",
+            text_inner11: "",
+            text_inner12: "",
+            text_inner13: "",
+            text_inner14: "",
+            text_inner15: "",
+        };
 
         if (result.rows.length === 1 && result.rows[0].token === TOKEN) {
-            const PROJECT_INFO = await client.query('SELECT * FROM projects WHERE id_project = $1', [PROJECT_ID]);
-            const PROJECT_INNER = await client.query('SELECT * FROM textproject WHERE id_project = $1', [PROJECT_ID]);
-            const STUDENT = await client.query('SELECT * FROM students WHERE id_student = $1', [ID_STUDENT]);
+            const info = await client.query('SELECT * FROM projects WHERE id_project = $1', [PROJECT_ID]);
+            const texts = await client.query('SELECT * FROM text_project WHERE id_project = $1', [PROJECT_ID]);
+            const student = await client.query('SELECT * FROM students WHERE id_student = $1', [id_student]);
+            const template = new Template(TEMPLATE_PATH);
 
-            const FIRST_NAME = STUDENT.rows[0].first_name;
-            const SECOND_NAME = STUDENT.rows[0].last_name;
-            const THIRD_NAME = STUDENT.rows[0].patronymic;
-            const NAME_SCHOOL = STUDENT.rows[0].name_school;
-            const CLASS = STUDENT.rows[0].class;
-            const CITY = STUDENT.rows[0].city;
-            const COUNTRY = STUDENT.rows[0].country;
+            data.FIRST_NAME = student.rows[0].first_name;
+            data.SECOND_NAME = student.rows[0].last_name;
+            data.THIRD_NAME = student.rows[0].patronymic;
+            data.NAME_SCHOOL = student.rows[0].name_school;
+            data.CLASS = student.rows[0].class;
+            data.CITY = student.rows[0].city;
+            data.COUNTRY = student.rows[0].country;
+            data.PROJECT_NAME = info.rows[0].project_name;
+            data.CREATE_DATE = info.rows[0].create_date;
 
-            const PROJECT_NAME = PROJECT_INFO.rows[0].project_name;
-            const CREATE_DATE = PROJECT_INFO.rows[0].create_date;
-
-            const TEXT = {};
-            for (const textStep of PROJECT_INNER.rows) {
-                TEXT[textStep.step_number] = textStep.step_inner;
+            for (const textStep of texts.rows) {
+                data[`text_inner${textStep.step_number}`] = textStep.step_inner;
             }
 
-            const STUDENT_DATA = {
-                id_student: ID_STUDENT,
-                first_name: FIRST_NAME,
-                second_name: SECOND_NAME,
-                third_name: THIRD_NAME,
-                name_school: NAME_SCHOOL,
-                class: CLASS, city: CITY,
-                country: COUNTRY
-            };
+            template.render(data);
+            res
+                .status(200)
+                .setHeader("Content-Disposition", "attachment; filename=document.docx")
+                .contentType('application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+                .send(template.generate());
 
-            const PROJECT_DATA = {
-                project_id: PROJECT_ID,
-                project_name: PROJECT_NAME,
-                create_data: CREATE_DATE,
-                text: TEXT
-            };
-
-            DATA = { student_data: STUDENT_DATA, project_data: PROJECT_DATA };
-
-            res.status(200).json({ message: "Получение данных для скачивания проекта", DATA });
         } else {
             console.log("Ошибка авторизации в методе (PROJECT DOWNLOAD)");
             res.status(500).json({ message: "Ошибка авторизации в (PROJECT DOWNLOAD)" })
@@ -506,11 +527,10 @@ app.get('/projects/:projectId/download', async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(501).json({ message: error });
+    } finally {
+        client.release();
     }
 });
-
-
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
