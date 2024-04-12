@@ -129,10 +129,10 @@ app.post('/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const parts = fullName.split(/\s+/).filter(part => part.trim() !== '');
-        const lastName = parts[0].toLowerCase();
-        const firstName = parts[1].toLowerCase();
-        const patronymic = parts[2] ? parts[2].toLowerCase() : '';
-
+        const {0: p1 = "", 1: p2 = "", 2: p3 = ""} = parts;
+        const lastName = p1.toLowerCase();
+        const firstName = p2.toLowerCase();
+        const patronymic = p3.toLowerCase();
 
         await client.query('INSERT INTO students (id_student, last_name, first_name, patronymic, email, name_school, class, password, city, country) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)', [ID_STUDENT, lastName, firstName, patronymic, email, null, null, hashedPassword, null, null]);
 
