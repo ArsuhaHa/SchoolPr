@@ -5,17 +5,21 @@ const app = express();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-
-
-
 // Подключаем middleware для разбора данных формы и JSON
 app.use(express.json());
-
-
 
 // Указываем путь к папке, содержащей статические HTML файлы
 app.use(express.static(path.join(__dirname, 'Project')));
 
+const { Pool } = require('pg');
+
+const pool = new Pool({
+    user: 'postgres',
+    host: 'db',
+    database: 'postgres',
+    password: '123',
+    port: 5432,
+});
 
 async function generateId() {
     try {
@@ -52,19 +56,6 @@ async function generateProjectId() {
         throw error;
     }
 }
-
-
-
-
-const { Pool } = require('pg');
-
-const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'postgres',
-    password: '123',
-    port: 5432,
-});
 
 // Проверка подключения к базе данных +
 pool.connect((err, client, release) => {
