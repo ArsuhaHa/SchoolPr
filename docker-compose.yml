@@ -1,5 +1,5 @@
 services:
-  project:
+  app:
     image: node:20.9
     working_dir: /app
     user: node
@@ -30,6 +30,8 @@ services:
     volumes:
       - db:/var/lib/postgresql/data
       - ./dump.sql:/var/tmp/dump.sql
+    ports:
+      - 5432:5432
     env_file:
       - db.env
     healthcheck:
