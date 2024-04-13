@@ -50,9 +50,6 @@ async function putData(url = '', data = {}) {
     }
 }
 
-
-
-
 function printError(flag) {
     const errorText = document.querySelector('.errorRegText'); // Выбираем элемент по классу
 
@@ -94,9 +91,6 @@ function clearError() {
 
 
 /* ДЛЯ РЕГИСТРАЦИИ ПОЛЬЗОВАТЕЛЯ  */
-
-
-
 async function registerUser() {
     const email = document.getElementById('emailReg').value;
     const fullName = document.getElementById('nameReg').value;
@@ -161,7 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loginUser() {
     const email = document.getElementById('emailLogin').value;
     const password = document.getElementById('passwordLogin').value;
-    console.log(email);
 
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('id_student');
@@ -184,7 +177,7 @@ async function loginUser() {
                     clearError();
 
                     sessionStorage.setItem('token', response.token);
-                    sessionStorage.setItem('id_student', response.id_student);
+                    sessionStorage.setItem('id_student', response.idStudent);
 
                     window.location.href = "Start.html";
                 }
@@ -337,15 +330,12 @@ async function getProfileData() {
         const city = STUDENT_DATA.city;
         const country = STUDENT_DATA.country;
 
-
-
         let nameOfStudent = document.getElementById('studentNameProfile');
         nameOfStudent.innerHTML = `${FIRST_NAME} ${SECOND_NAME} ${THIRD_NAME}`;
 
         let schoolNameProfile = document.getElementById('schoolNameProfile');
         let classNameProfile = document.getElementById('classNameProfile');
         let countryCityProfile = document.getElementById('countryCityProfile');
-
 
         schoolNameProfile.innerHTML = `${NAME_SCHOOL}`;
         classNameProfile.innerHTML = `${CLASS}`;
@@ -366,85 +356,44 @@ document.addEventListener('DOMContentLoaded', () => {
     getProfileData();
 });
 
-
-
-
 // СОЗДАНИЕ ПРОЕКТА
-async function createProject() {
+async function createProject(project) {
     const token = sessionStorage.getItem('token');
-    const idStudent = "1";
+    const idStudent = sessionStorage.getItem('id_student');
+    const payload = { idStudent, token, project };
     const url = '/projects';
 
-    const project = {
-        projectName: "Проект Семёна",
-        text: {
-            1: "as",
-            2: "ds",
-            3: "123",
-            4: "3",
-            5: "4"
-        }
-    };
-
-    const DATA = { token, idStudent, project };
-    console.log(DATA);
-
     try {
-        const response = await postData(url, DATA);
+        const body = await postData(url, payload);
+        const { projectId } = body;
 
-        console.log(response);
-
-        // console.log('ID созданного проекта:', response.projectId);
-        console.log("Проект успешно создан");
+        return projectId;
     } catch (error) {
         console.error('Error:', error.message);
     }
 }
-// createProject();
-
-
-
-
 
 // ОБНОВЛЕНИЕ ПРОЕКТА
-async function updateProject() {
+async function updateProject(project, projectId) {
     const token = sessionStorage.getItem('token');
-    const projectId = '2';
-    const studentId = '1';
-    const project = {
-        projectName: "Да, меняется",
-        text: {
-            1: "всё",
-            2: "ок",
-            3: "работает",
-            4: "норм",
-            5: "4"
-        }
-    };
-
+    const studentId = sessionStorage.getItem('id_student');
     const UpdateData = { token, projectId, studentId, project };
-
     const url = `/projects/${projectId}`;
 
-
     try {
-        const response = await putData(url, UpdateData);
+        await putData(url, UpdateData);
 
-        console.log("Проект успешно изменен", response.project);
+        return projectId;
     } catch (error) {
         console.error('Error:', error.message);
     }
 }
-// updateProject();
-
-
 
 // ПОЛУЧЕНИЕ ПРОЕКТА СТУДЕНТА ПО ЕГО ID
 async function getProjectData() {
     const token = sessionStorage.getItem('token');
     const projectId = '1';
     const url = `/projects/${projectId}`;
-
 
     try {
         const response = await fetch(url, {
@@ -489,7 +438,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const projectId = body.dataset.projectId;
 
             if (isChange) {
-                console.log(`do change`);
+                const success = await requestChange(projectId);
+
+                if (success) {
+                    location.href = `${location.origin}/html/tmp.html?id=${projectId}&p=1`;
+                }
 
                 return;
             }
@@ -540,6 +493,173 @@ document.addEventListener('DOMContentLoaded', () => {
             sessionStorage.setItem('id_student', '');
             sessionStorage.setItem('profileData', '');
         })
+    }
+});
+
+function getCurrentParagraph() {
+    const search = new URLSearchParams(location.search);
+    let searchParagraph = search.get("p");
+    let currentParagraph = 1;
+
+    if (searchParagraph) {
+        currentParagraph = Number(searchParagraph);
+    }
+
+    return currentParagraph;
+}
+
+async function storeProject(data, id) {
+    if (id) {
+        return await updateProject(data, id);
+    } 
+
+    return await createProject(data);
+}
+
+async function fetchParagraph(id) {
+    const token = sessionStorage.getItem('token');
+
+    if (!token) {
+        return;
+    }
+
+    const url = `/stored/${id}`;
+    const params = {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+        }
+    };
+
+    try {
+        const response = await fetch(url, params);
+        const { status } = response;
+
+        if (status === 404) {
+            return;
+        }
+
+        const parsed = await response.json();
+        const { text } = parsed;
+
+        return text;
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+}
+
+async function storeParagraph(text, id) {
+    const token = sessionStorage.getItem('token');
+
+    if (!token) {
+        return;
+    }
+
+    const url = `/stored/${id}`;
+    const params = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ text }),
+    };
+
+    try {
+        const response = await fetch(url, params);
+        const { status } = response;
+
+        return status === 301;
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+
+    return false;
+}
+
+async function fetchParagraphs() {
+    const token = sessionStorage.getItem('token');
+
+    if (!token) {
+        return;
+    }
+
+    const url = `/stored`;
+    const params = {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+        },
+    };
+
+    try {
+        const response = await fetch(url, params);
+        const { status } = response;
+
+        if (status === 404) {
+            return;
+        }
+
+        const body = await response.json();
+
+        return body?.texts;
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+}
+
+async function handleNextParagraph(event) {
+    event.preventDefault();
+
+    const search = new URLSearchParams(location.search);
+    const text = tinymce.activeEditor.getContent();
+    const projectId = search.get("id");
+    const currentParagraph = getCurrentParagraph();
+    const nextParagraph = currentParagraph + 1;
+
+    await storeParagraph(text, currentParagraph);
+
+    if (currentParagraph === 15) {
+        const text = await fetchParagraphs();
+        const id = await storeProject({
+            projectName: "Проект",
+            text,
+        }, projectId);
+
+        if (id === undefined) {
+            return;
+        }
+
+        const location = await downloadProject(id);
+
+        if (!location) {
+            return;
+        }
+
+        immitateClick(location);
+
+        return;
+    }
+
+    search.set("p", `${nextParagraph}`);
+    location.search = `?${search.toString()}`;
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const nextPElement = document.getElementById("next-paragraph");
+    const paragraphElement = document.getElementById("paragraph-textarea");
+
+    if (nextPElement) {
+        nextPElement.addEventListener('click', handleNextParagraph);
+    }
+
+    if (paragraphElement) {
+        const paragraph = getCurrentParagraph();
+        const text = await fetchParagraph(paragraph);
+
+        if (text) {
+            setTimeout(() => tinymce.activeEditor.setContent(text), 1000);
+        }
     }
 });
 
@@ -605,6 +725,25 @@ async function deleteProject(projectId) {
 }
 // deleteProject();
 
+async function requestChange(projectId) {
+    const token = sessionStorage.getItem('token');
+    const url = `/projects/${projectId}/edit`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+        });
+
+        return response.status === 200;
+    } catch (error) {
+        console.error('Ошибка:', error.message);
+    }
+
+    return false;
+}
 
 async function downloadProject(projectId) {
     const token = sessionStorage.getItem('token');
