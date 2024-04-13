@@ -13,8 +13,8 @@ const Template = require('./template.js');
 app.use(express.json());
 app.use(session({
     secret: 'secret',
-    resave: false,
-    cookie: { secure: "auto", maxAge: 60_000 },
+    resave: true,
+    cookie: { secure: "auto", maxAge: 60 * 1000 * 30 },
     saveUninitialized: true,
   }))
 
@@ -69,6 +69,26 @@ async function generateProjectId() {
         throw error;
     } finally {
         client.release();
+    }
+}
+
+function buildParagraphs() {
+    return {
+        p1: "",
+        p2: "",
+        p3: "",
+        p4: "",
+        p5: "",
+        p6: "",
+        p7: "",
+        p8: "",
+        p9: "",
+        p10: "",
+        p11: "",
+        p12: "",
+        p13: "",
+        p14: "",
+        p15: "",
     }
 }
 
@@ -283,7 +303,7 @@ app.post('/projects', async (req, res) => {
         if (result.rows.length === 1 && TOKEN === result.rows[0].token && IDSTUDENT == result.rows[0].id_student) {
             const ID_PROJECT = await generateProjectId();
 
-            await client.query('INSERT INTO projects (id_project, project_name, create_date, id_student) VALUES ($1, $2, $3, $4)', [ID_PROJECT, NAME_PROJECT, null, IDSTUDENT]);
+            await client.query('INSERT INTO projects (id_project, project_name, create_date, id_student) VALUES ($1, $2, NOW(), $3)', [ID_PROJECT, NAME_PROJECT, IDSTUDENT]);
 
             const textInsertValues = Object.entries(PROJECT_TEXT).map(([stepNumber, stepText]) => {
                 return [ID_PROJECT, stepNumber, stepText];
@@ -296,7 +316,7 @@ app.post('/projects', async (req, res) => {
                 );
             }));
 
-            res.status(200).json({ message: 'Проект успешно создан', projectId: ID_PROJECT });
+            res.status(201).json({ message: 'Проект успешно создан', projectId: ID_PROJECT });
         }
     } catch (error) {
         console.log(error);
@@ -420,7 +440,6 @@ app.get('/projects/:projectId', async (req, res) => {
     }
 }); 
 
-
 // УДАЛЕНИЕ ПРОЕКТА ПО ID: +
 app.delete('/projects/:projectId', async (req, res) => {
     const TOKEN = req.headers.authorization.split(' ')[1];
@@ -440,6 +459,39 @@ app.delete('/projects/:projectId', async (req, res) => {
         res.status(200).json({ message: "Успешное удаление проекта" });
     } catch (error) {
         console.log(error);
+    } finally {
+        client.release();
+    }
+});
+
+app.get('/projects/:projectId/edit', async (req, res) => {
+    const token = req.headers.authorization.split(' ')[1];
+    const projectId = req.params.projectId;
+    const client = await pool.connect();
+
+    try {
+        const result = await client.query('SELECT token, id_student FROM token_student WHERE token = $1', [token]);
+
+        if (!result.rows.length) {
+            res.status(404).send();
+
+            return;
+        }
+
+        const texts = await client.query('SELECT * FROM text_project WHERE id_project = $1', [projectId]);
+        const paragraphs = req.session?.paragraphs ?? buildParagraphs();
+
+        for (const row of texts.rows) {
+            const key = `p${row.step_number}`;
+
+            paragraphs[key] = row.step_inner;
+        }
+
+        req.session.paragraphs = paragraphs;
+        req.session.save(() => res.status(200).send());
+    } catch (error) {
+        console.log(error);
+        res.status(501).json({ message: error });
     } finally {
         client.release();
     }
@@ -554,6 +606,100 @@ app.get('/projects/:projectId/download/:fileId', async (req, res) => {
         .attachment("document.docx")
         .send(template.generate());
 });
+
+app.get('/stored', async (req, res) => {
+    const token = req.headers.authorization.split(' ')[1];
+    const client = await pool.connect();
+
+    try {
+        const result = await client.query('SELECT token, id_student FROM token_student WHERE token = $1', [token]);
+
+        if (!result.rows.length) {
+            res.status(404).send();
+
+            return;
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(501).json({ message: error });
+    } finally {
+        client.release();
+    }
+
+    const paragraphs = req.session?.paragraphs;
+
+    if (!paragraphs) {
+        res.status(404).send();
+
+        return;
+    }
+
+    const texts = Object.fromEntries(
+        Array
+            .from(Object.entries(paragraphs))
+            .map(({ 0: key, 1: value }) => [ key.replace("p", ""), value])
+    );
+
+    res.status(200).send({ texts });
+});
+
+app.get('/stored/:id', async (req, res) => {
+    const token = req.headers.authorization.split(' ')[1];
+    const client = await pool.connect();
+    const id = req.params.id;
+    const key = `p${id}`;
+
+    try {
+        const result = await client.query('SELECT token, id_student FROM token_student WHERE token = $1', [token]);
+
+        if (!result.rows.length) {
+            res.status(404).send();
+
+            return;
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(501).json({ message: error });
+    } finally {
+        client.release();
+    }
+
+    console.log(req.session);
+
+    const paragraphs = req.session?.paragraphs ?? {};
+    const text = paragraphs[key] ?? "";
+
+    res.status(200).send({ text });
+});
+
+app.post('/stored/:id', async (req, res) => {
+    const body = req.body;
+    const token = req.headers.authorization.split(' ')[1];
+    const client = await pool.connect();
+    const id = req.params.id;
+    const key = `p${id}`;
+
+    try {
+        const result = await client.query('SELECT token, id_student FROM token_student WHERE token = $1', [token]);
+
+        if (!result.rows.length) {
+            res.status(404).send();
+
+            return;
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(501).json({ message: error });
+    } finally {
+        client.release();
+    }
+
+    const paragraphs = req.session?.paragraphs ?? buildParagraphs();
+    
+    paragraphs[key] = body.text;
+    req.session.paragraphs = paragraphs;
+    req.session.save(() => res.status(201).send());
+})
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
