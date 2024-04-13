@@ -664,8 +664,6 @@ app.get('/stored/:id', async (req, res) => {
         client.release();
     }
 
-    console.log(req.session);
-
     const paragraphs = req.session?.paragraphs ?? {};
     const text = paragraphs[key] ?? "";
 
