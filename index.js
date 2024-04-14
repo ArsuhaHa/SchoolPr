@@ -1,6 +1,7 @@
 const { join } = require('node:path');
 const express = require('express');
 const session = require('express-session');
+const sanitizeHtml = require('sanitize-html');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const { threadId } = require('worker_threads');
@@ -550,7 +551,10 @@ app.get('/projects/:projectId/download', async (req, res) => {
             data.CREATE_DATE = info.rows[0].date;
 
             for (const textStep of texts.rows) {
-                data[`text_inner${textStep.step_number}`] = textStep.step_inner;
+                data[`text_inner${textStep.step_number}`] = sanitizeHtml(textStep.step_inner, {
+                    allowedTags: [],
+                    allowedAttributes: {},
+                });
             }
 
             const downloads = req.session?.downloads || [];
