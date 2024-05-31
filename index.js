@@ -27,7 +27,7 @@ const TEMPLATE_PATH = join(__dirname, "template.docx");
 
 const pool = new Pool({
     user: 'postgres',
-    host: 'db',
+    host: 'localhost',
     database: 'postgres',
     password: '123',
     port: 5432,
@@ -139,12 +139,14 @@ app.post('/login', async (req, res) => {
 });
 
 
+
+
 // РЕГИСТРАЦИЯ ПОЛЬЗОВАТЕЛЯ: +
 app.post('/register', async (req, res) => {
     const { email, fullName, password } = req.body;
     
     try {
-        const client = await pool.connect();
+        const client = await pool.connect();    
         const result = await client.query('SELECT * FROM students WHERE email = $1', [email]);
 
         if (result.rows.length > 0) {

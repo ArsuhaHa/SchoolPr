@@ -7,6 +7,13 @@
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="../css/profile.css">
     <title>Document</title>
+    <style>
+        #project-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+    </style>
 </head>
 
 <body>
@@ -29,7 +36,7 @@
                 </div>
             </div>
 
-            
+
             <div id="profile" class="col-md-9 border-right">
                 <div class="p-3 py-5">
                     <div class="d-flex justify-content-center align-items-center mb-3">
@@ -39,7 +46,7 @@
                         ФИО:
                     </div>
                     <div id="studentNameProfile" class="d-flex justify-content-center row">
-                        
+
                     </div>
 
                     <div class="d-flex justify-content-center row name-of-title mt-4">
@@ -65,10 +72,10 @@
                     <div class="mt-5 text-center"><a href="ChangeProfile.html"
                             class="btn btn-primary btn-itd profile-button" type="button">Изменить</a></div>
                 </div>
-                
+
             </div>
 
-            
+
             <div id="tmp" class="col-md-3">
 
             </div>
@@ -84,16 +91,19 @@
                                 <div class="card d-none" style="width: 18rem;">
                                     <div class="card-body">
                                         <h5 class="card-title mb-5">Название проекта</h5>
-                                        
-                                        <a href="#" class="button-change btn btn-itd btn-primary mt-5 d-flex justify-content-center">Изменить</a>
-                                        <a href="#" class="button-download btn btn-itd btn-primary mt-5 d-flex justify-content-center">Скачать</a>
-                                        <a href="#" class="button-delete btn btn-itd btn-primary mt-5 d-flex justify-content-center">Удалить</a>
+
+                                        <a href="#"
+                                            class="button-change btn btn-itd btn-primary mt-5 d-flex justify-content-center">Изменить</a>
+                                        <a href="#"
+                                            class="button-download btn btn-itd btn-primary mt-5 d-flex justify-content-center">Скачать</a>
+                                        <a href="#"
+                                            class="button-delete btn btn-itd btn-primary mt-5 d-flex justify-content-center">Удалить</a>
                                     </div>
                                 </div>
-                            </div>                        
+                            </div>
                         </div>
                     </div>
-                    
+
                 </div>
             </div>
         </div>
@@ -116,13 +126,13 @@
         let tmp = document.getElementById('tmp');
         let project = document.getElementById('project');
 
-        btn_profile.onclick = function() {
+        btn_profile.onclick = function () {
             tmp.style.display = 'none';
             project.style.display = 'none';
             profile.style.display = 'block';
         }
 
-        btn_project.onclick = function() {
+        btn_project.onclick = function () {
             tmp.style.display = 'none';
             project.style.display = 'block';
             profile.style.display = 'none';

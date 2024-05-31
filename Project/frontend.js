@@ -90,15 +90,12 @@ function clearError() {
 }
 
 
-/* ДЛЯ РЕГИСТРАЦИИ ПОЛЬЗОВАТЕЛЯ  */
 async function registerUser() {
     const email = document.getElementById('emailReg').value;
     const fullName = document.getElementById('nameReg').value;
     const password = document.getElementById('passReg').value;
     const conPassword = document.getElementById('passConReg').value;
 
-    // sessionStorage.removeItem('token');
-    // sessionStorage.removeItem('id_student');
 
     if (!email || !fullName || !password || !conPassword) {
         console.log("Не все данные заполнены");
@@ -612,7 +609,8 @@ async function handleNextParagraph(event) {
     event.preventDefault();
 
     const search = new URLSearchParams(location.search);
-    const text = tinymce.activeEditor.getContent();
+    // const text = tinymce.activeEditor.getContent();
+    const text = quill.root.innerHTML;
     const projectId = search.get("id");
     const currentParagraph = getCurrentParagraph();
     const nextParagraph = currentParagraph + 1;
@@ -662,7 +660,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const text = await fetchParagraph(paragraph);
     
             if (text) {
-                setTimeout(() => tinymce.activeEditor.setContent(text), 1000);
+                // setTimeout(() => tinymce.activeEditor.setContent(text), 1000);
+                quill.root.innerHTML = text;
             }
         }
     }

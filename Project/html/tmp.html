@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../css/bootstrap.min.css">
     <link rel="stylesheet" href="../css/tmp.css">
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.5/dist/quill.snow.css" rel="stylesheet" />
     <title>Document</title>
 </head>
 
@@ -76,12 +77,18 @@
 
 
     <!-- Редактор текста -->
-    <div class="container mt-5 mb-5">
+    <!-- <div class="container mt-5 mb-5">
         <div class="row">
             <div class="col">
                 <textarea id="paragraph-textarea">
-                    
+
                 </textarea>
+            </div>
+        </div>
+    </div> -->
+    <div class="container mb-5">
+        <div class="row">
+            <div id="paragraph-textarea">
             </div>
         </div>
     </div>
@@ -143,10 +150,10 @@
     </script>
 
     <!-- Tiny cloud - редактор текста -->
-    <script src="https://cdn.tiny.cloud/1/arhcc2ybkw0s1h5crx8wxjtmm7ohr06b0ha33jxzxfxi033z/tinymce/6/tinymce.min.js"
-        referrerpolicy="origin"></script>
-
-    <!-- Подключение редактора -->
+    <!-- <script src="https://cdn.tiny.cloud/1/arhcc2ybkw0s1h5crx8wxjtmm7ohr06b0ha33jxzxfxi033z/tinymce/6/tinymce.min.js"
+        referrerpolicy="origin"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.5/dist/quill.js"></script>
+    <!-- Подключение редактора
     <script>
         tinymce.init({
             selector: '#paragraph-textarea',
@@ -163,8 +170,13 @@
             // ],
             // ai_request: (request, respondWith) => respondWith.string(() => Promise.reject("See docs to implement AI Assistant")),
         });
-    </script>
+    </script> -->
 
+    <script>
+        const quill = new Quill('#paragraph-textarea', {
+            theme: 'snow'
+        });
+    </script>
     <script src="../library/bootstrap.bundle.min.js"></script>
     <script src="../frontend.js"></script>
 </body>
